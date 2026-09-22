@@ -129,7 +129,13 @@ prepare_defconfig() {
 		CONFIG_AUDITSYSCALL=y
 
 	info "forced SELinux configs into defconfig"
-	
+
+	kconf_set_many "$DEFCONFIG_PATH" \
+    CONFIG_STACKPROTECTOR=y \
+    CONFIG_STACKPROTECTOR_STRONG=y \
+    CONFIG_CC_STACKPROTECTOR=y
+	info "forced STACKPROTECTOR configs"
+
 	endgroup
 }
 
