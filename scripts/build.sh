@@ -101,6 +101,34 @@ prepare_defconfig() {
 			warn "failed to fix dentry initialization"
 		fi
 	fi
+
+	local sec_kconfig="${KERNEL_DIR}/security/Kconfig"
+	local selinux_kconfig="${KERNEL_DIR}/security/selinux/Kconfig"
+
+	if [ -f "$sec_kconfig" ]; then
+		sed -i -E '/^config SECURITY$/,/^config /{s/^[[:space:]]*depends on .*$//}' "$sec_kconfig" || true
+		sed -i -E '/^config SECURITY_NETWORK$/,/^config /{s/^[[:space:]]*depends on .*$//}' "$sec_kconfig" || true
+		info "stripped SECURITY / SECURITY_NETWORK depends"
+	fi
+
+	if [ -f "$selinux_kconfig" ]; then
+		sed -i -E '/^config SECURITY_SELINUX$/,/^config /{s/^[[:space:]]*depends on .*$//}' "$selinux_kconfig" || true
+		info "stripped SECURITY_SELINUX depends"
+	fi
+
+	kconf_set_many "$DEFCONFIG_PATH" \
+		CONFIG_SECURITY=y \
+		CONFIG_SECURITYFS=y \
+		CONFIG_SECURITY_NETWORK=y \
+		CONFIG_SECURITY_SELINUX=y \
+		CONFIG_SECURITY_SELINUX_BOOTPARAM=y \
+		CONFIG_SECURITY_SELINUX_DEVELOP=y \
+		CONFIG_SECURITY_SELINUX_AVC_STATS=y \
+		CONFIG_DEFAULT_SECURITY_SELINUX=y \
+		CONFIG_AUDIT=y \
+		CONFIG_AUDITSYSCALL=y
+
+	info "forced SELinux configs into defconfig"
 	
 	endgroup
 }
