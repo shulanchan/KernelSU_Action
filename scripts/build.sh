@@ -45,7 +45,9 @@ prepare_defconfig() {
 	fi
 
 	# Overlayfs backs KernelSU's module mounts and system-partition writes.
-	is_true "${ADD_OVERLAYFS_CONFIG:-false}" && kconf_enable "$DEFCONFIG_PATH" CONFIG_OVERLAY_FS
+	if is_true "${ADD_OVERLAYFS_CONFIG:-false}"; then
+		kconf_enable "$DEFCONFIG_PATH" CONFIG_OVERLAY_FS
+	fi
 
 	# Kept as a standalone switch for kernels that need kprobes for their own
 	# reasons, independent of the hook mode.
@@ -60,7 +62,9 @@ prepare_defconfig() {
 			CONFIG_LTO_CLANG_THIN=n CONFIG_THINLTO=n CONFIG_LTO_NONE=y
 	fi
 
-	is_true "${DISABLE_CC_WERROR:-false}" && kconf_disable "$DEFCONFIG_PATH" CONFIG_CC_WERROR
+	if is_true "${DISABLE_CC_WERROR:-false}"; then
+		kconf_disable "$DEFCONFIG_PATH" CONFIG_CC_WERROR
+	fi
 
 	# Free-form extras: one CONFIG_x=y per line, or space separated.
 	if [ -n "${EXTRA_DEFCONFIG:-}" ]; then
@@ -93,10 +97,10 @@ prepare_defconfig() {
 
 make_args() {
 	printf '%s' "O=out ARCH=${ARCH}"
-	[ -n "${CUSTOM_CMDS:-}" ] && printf ' %s' "$CUSTOM_CMDS"
-	[ -n "${EXTRA_CMDS:-}"  ] && printf ' %s' "$EXTRA_CMDS"
-	[ -n "${GCC_64:-}"      ] && printf ' %s' "$GCC_64"
-	[ -n "${GCC_32:-}"      ] && printf ' %s' "$GCC_32"
+	if [ -n "${CUSTOM_CMDS:-}" ]; then printf ' %s' "$CUSTOM_CMDS"; fi
+	if [ -n "${EXTRA_CMDS:-}"  ]; then printf ' %s' "$EXTRA_CMDS";  fi
+	if [ -n "${GCC_64:-}"      ]; then printf ' %s' "$GCC_64";      fi
+	if [ -n "${GCC_32:-}"      ]; then printf ' %s' "$GCC_32";      fi
 	if is_true "${USE_LLVM:-false}"; then
 		printf ' LLVM=1 LLVM_IAS=1'
 		[ -n "${GCC_64:-}" ] || printf ' CROSS_COMPILE=aarch64-linux-gnu-'
