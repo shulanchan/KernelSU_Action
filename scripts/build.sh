@@ -136,6 +136,16 @@ prepare_defconfig() {
     CONFIG_CC_STACKPROTECTOR=y
 	info "forced STACKPROTECTOR configs"
 
+local exec_c="${KERNEL_DIR}/fs/exec.c"
+	if [ -f "$exec_c" ] && grep -q 'ksu_handle_post_execveat_sucompat' "$exec_c"; then
+		sed -i '/ksu_handle_post_execveat_sucompat/d' "$exec_c"
+		if ! grep -q 'ksu_handle_post_execveat_sucompat' "$exec_c"; then
+			ok "removed ksu_handle_post_execveat_sucompat calls from fs/exec.c"
+		else
+			warn "residual references still present"
+		fi
+	fi
+	
 	endgroup
 }
 
