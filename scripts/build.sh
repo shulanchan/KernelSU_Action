@@ -90,6 +90,18 @@ prepare_defconfig() {
 
 	info "defconfig changes:"
 	diff -u "${WORKSPACE}/defconfig.orig" "$DEFCONFIG_PATH" | sed -n '4,$p' | sed 's/^/    /' || true
+
+	local task_mmu="${KERNEL_DIR}/fs/proc/task_mmu.c"
+	if [ -f "$task_mmu" ] && grep -q 'spoofed_redirected_name' "$task_mmu"; then
+		info "fixing dentry initialization in task_mmu.c..."
+		sed -i 's/struct dentry \*dentry;/struct dentry *dentry = NULL;/' "$task_mmu"
+		if grep -q 'struct dentry \*dentry = NULL;' "$task_mmu"; then
+			ok "dentry initialized to NULL"
+		else
+			warn "failed to fix dentry initialization"
+		fi
+	fi
+	
 	endgroup
 }
 
