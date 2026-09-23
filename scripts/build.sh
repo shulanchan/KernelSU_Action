@@ -87,9 +87,6 @@ prepare_defconfig() {
 		info "CONFIG_LOCALVERSION=${KERNEL_LOCALVERSION} (LOCALVERSION_AUTO disabled)"
 	elif [ -n "${KERNEL_NAME:-}" ]; then
 		kconf_set "$DEFCONFIG_PATH" CONFIG_LOCALVERSION "\"-${KERNEL_NAME}\""
-		if [ -f "${KERNEL_DIR}/scripts/setlocalversion" ]; then
-			sed -i 's/echo "\$res"/echo "\$res"/; s/-dirty//g' "${KERNEL_DIR}/scripts/setlocalversion"
-		fi
 	fi
 
 	info "defconfig changes:"
