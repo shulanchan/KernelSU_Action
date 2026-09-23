@@ -81,7 +81,11 @@ prepare_defconfig() {
 
 	# A stable LOCALVERSION keeps artifact names predictable. Without this the
 	# tree appends "-dirty" as soon as any patch above touches a tracked file.
-	if [ -n "${KERNEL_NAME:-}" ]; then
+	if [ -n "${KERNEL_LOCALVERSION:-}" ]; then
+		kconf_set "$DEFCONFIG_PATH" CONFIG_LOCALVERSION "\"${KERNEL_LOCALVERSION}\""
+		kconf_disable "$DEFCONFIG_PATH" CONFIG_LOCALVERSION_AUTO
+		info "CONFIG_LOCALVERSION=${KERNEL_LOCALVERSION} (LOCALVERSION_AUTO disabled)"
+	elif [ -n "${KERNEL_NAME:-}" ]; then
 		kconf_set "$DEFCONFIG_PATH" CONFIG_LOCALVERSION "\"-${KERNEL_NAME}\""
 		if [ -f "${KERNEL_DIR}/scripts/setlocalversion" ]; then
 			sed -i 's/echo "\$res"/echo "\$res"/; s/-dirty//g' "${KERNEL_DIR}/scripts/setlocalversion"
